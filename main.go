@@ -3,32 +3,35 @@ package main
 
 import (
     "os"
+    "time"
 
     "github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
 )
 
 func main() {
     router := gin.Default()
 
     // Konfigurasi CORS
-    router.Use(func(c *gin.Context) {
-        origin := c.GetHeader("Origin")
-
-        if origin == "http://localhost:3000" {
-            c.Header("Access-Control-Allow-Origin", origin)
-            c.Header("Vary", "Origin")
-        }
-
-        c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
-
-        if c.Request.Method == "OPTIONS" {
-            c.AbortWithStatus(204)
-            return
-        }
-
-        c.Next()
-    })
+    router.Use(cors.New(cors.Config{
+        AllowOrigins: []string{
+            "http://localhost:3000",
+        },
+        AllowMethods: []string{
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "OPTIONS",
+        },
+        AllowHeaders: []string{
+            "Origin",
+            "Content-Type",
+            "Accept",
+            "Authorization",
+        },
+        MaxAge: 12 * time.Hour,
+    }))
 
     // Endpoint API
     router.GET("/api/hello", func(c *gin.Context) {
